@@ -1,6 +1,6 @@
 library(shinydashboard)
+library(shinycssloaders)
 library(leaflet)
-
 
 #------------------------------------------------------------------------
 # Header
@@ -57,24 +57,10 @@ body <- dashboardBody(
   # TABS
   tabsetPanel(id = "sp156",
               #------------------------------------------------------------------------
-              # Arquivo
-              tabPanel("Arquivo", 
-                       fluidRow(
-                         column(6,
-                                box(width = NULL, status = "warning",
-                                    fileInput("arquivo", "Selecione o arquivo CSV", 
-                                              multiple = FALSE, 
-                                              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                                    ),
-                                    actionButton("processar","Processar")
-                                )                         )
-                       )
-              ),
-              #------------------------------------------------------------------------
               # Dados
               tabPanel("Dados",
                        # Cria o espaco para mostrar a tabela
-                       DT::dataTableOutput("table")
+                       DT::dataTableOutput("table") %>% withSpinner()
               ),
               #------------------------------------------------------------------------
               # Graficos
@@ -86,7 +72,7 @@ body <- dashboardBody(
                                     title = "Solicitações por Órgão",
                                     solidHeader = TRUE, 
                                     background = "black",
-                                    plotOutput("grafico_orgao")
+                                    plotOutput("grafico_orgao") %>% withSpinner()
                                 )
                          ),
                          column(6,
@@ -95,7 +81,7 @@ body <- dashboardBody(
                                     title = "Solicitações Totais",
                                     solidHeader = TRUE, 
                                     background = "black",
-                                    plotOutput("pie_orgao")
+                                    plotOutput("pie_orgao") %>% withSpinner()
                                 )
                          )
                        ),
@@ -107,7 +93,7 @@ body <- dashboardBody(
                                     title = "Solicitações Totais",
                                     solidHeader = TRUE, 
                                     background = "black",
-                                    plotOutput("grafico_total")
+                                    plotOutput("grafico_total") %>% withSpinner()
                                 )
                          ),
                          column(6,
@@ -116,7 +102,7 @@ body <- dashboardBody(
                                     title = "Solicitações Totais",
                                     solidHeader = TRUE, 
                                     background = "black",
-                                    plotOutput("pie_total")
+                                    plotOutput("pie_total") %>% withSpinner()
                                 )
                          )
                        )
@@ -126,7 +112,7 @@ body <- dashboardBody(
 
 
 dashboardPage(
-  skin = "yellow", # blue, black, purple, green, red, yellow
+  skin = "blue", # blue, black, purple, green, red, yellow
   header,
   dashboardSidebar(disable = TRUE),
   body
