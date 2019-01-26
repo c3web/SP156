@@ -1,0 +1,13 @@
+name: SP156
+title: SP156
+username:
+account: c3web
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 662406
+bundleId: 1838329
+url: https://c3web.shinyapps.io/sp156/
+when: 1548507698.47204
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md

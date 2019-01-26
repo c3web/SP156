@@ -21,11 +21,6 @@ function(input, output, session) {
     data <- getData()
   }))
   #----------------------------------------------------------------------------
-  # Grafico de Solicitacoes Totais
-  output$summary <- renderPrint({
-    summary(dados$Órgão)
-  })
-  #----------------------------------------------------------------------------
   updateSelectInput(session, "sorgaos",
                     choices = c("Selecione",
                                 sort(unique(as.character(dados$Órgão))))
