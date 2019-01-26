@@ -1,7 +1,6 @@
 library(shinydashboard)
 library(shinycssloaders)
 library(leaflet)
-
 #------------------------------------------------------------------------
 # Header
 header <- dashboardHeader(
@@ -15,7 +14,12 @@ body <- dashboardBody(
 
   #------------------------------------------------------------------------
   # Style para o subtitulo
-  tags$head(tags$style("#norgao{color: #806600;}")),
+  tags$head(
+    tags$style("#norgao{color: #806600;}"),
+    tags$style("#desc_orgao table {background-color: white; color: #000000 }"),
+    tags$style("#desc_total_f table {background-color: white; color: #000000 }"),
+    media="screen", type="text/css"),
+  
   #------------------------------------------------------------------------
   # Subtitulo - Orgao
   fluidRow(column(12, h3(strong(textOutput("norgao"))))),
@@ -58,30 +62,30 @@ body <- dashboardBody(
   tabsetPanel(id = "sp156",
               #------------------------------------------------------------------------
               # Dados
-              tabPanel("Dados",
+              tabPanel("Dados", icon = icon("list-alt"),
                        # Cria o espaco para mostrar a tabela
                        DT::dataTableOutput("table") %>% withSpinner()
               ),
               #------------------------------------------------------------------------
               # Graficos
-              tabPanel("Gráficos",
+              tabPanel("Indicadores", icon = icon("chart-bar"),
                        fluidRow(
                          column(6,
                                 box(width = NULL, 
                                     status = "warning",
                                     title = "Solicitações por Órgão",
                                     solidHeader = TRUE, 
-                                    background = "black",
+                                    #background = "black",
                                     plotOutput("grafico_orgao") %>% withSpinner()
                                 )
                          ),
                          column(6,
-                                box(width = NULL, 
-                                    status = "warning",
-                                    title = "Solicitações Totais",
+                                box(width = "auto", 
+                                    status = "danger",
+                                    title = "TOP 10 - Tipos de serviços mais solicitados por Órgão",
                                     solidHeader = TRUE, 
-                                    background = "black",
-                                    plotOutput("pie_orgao") %>% withSpinner()
+                                    #background = "black",
+                                    tableOutput("desc_orgao") %>% withSpinner()
                                 )
                          )
                        ),
@@ -92,17 +96,17 @@ body <- dashboardBody(
                                     status = "success",
                                     title = "Solicitações Totais",
                                     solidHeader = TRUE, 
-                                    background = "black",
+                                    #background = "black",
                                     plotOutput("grafico_total") %>% withSpinner()
                                 )
                          ),
                          column(6,
                                 box(width = NULL, 
-                                    status = "success",
-                                    title = "Solicitações Totais",
+                                    status = "info",
+                                    title = "TOP 10 - Tipos de serviços mais solicitados",
                                     solidHeader = TRUE, 
-                                    background = "black",
-                                    plotOutput("pie_total") %>% withSpinner()
+                                    #background = "black",
+                                    tableOutput("desc_total_f") %>% withSpinner()
                                 )
                          )
                        )
@@ -112,7 +116,7 @@ body <- dashboardBody(
 
 
 dashboardPage(
-  skin = "blue", # blue, black, purple, green, red, yellow
+  skin = "yellow", # blue, black, purple, green, red, yellow
   header,
   dashboardSidebar(disable = TRUE),
   body

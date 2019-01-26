@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------
+library(plyr)
 #------------------------------------------------------------------------
-#arquivo <- "https://c3web.github.io/SP156/data/dados-do-sp156.csv"
 arquivo <- "data/dados-do-sp156.csv"
 #
 dados <- read.csv(arquivo, sep = ",", encoding = "UTF-8")
@@ -23,8 +23,6 @@ function(input, output, session) {
   #----------------------------------------------------------------------------
   # Grafico de Solicitacoes Totais
   output$summary <- renderPrint({
-    #print(dim(dados))
-    #summary(dados$Status.da.solicitação)
     summary(dados$Órgão)
   })
   #----------------------------------------------------------------------------
@@ -170,6 +168,44 @@ function(input, output, session) {
   })
   
   #----------------------------------------------------------------------------
+  # TABELAS
+  #----------------------------------------------------------------------------
+  # Tabela de Serviços mais solicitados filtrado por órgão
+  # Table
+  output$desc_orgao <- renderTable({
+    data <- getData()
+    orgao <- input$sorgaos
+    
+    org <- subset(data, Órgão == orgao)
+    if (!nrow(org) > 0) {
+      return("Se um Órgão estiver selecionado, altere o Distrito ou o Status")
+    }
+    
+    counts_orgao <- ddply(subset(org, org$Status.da.solicitação != "CANCELADA"), 
+                          .(Distrito, Órgão, Serviço, Status.da.solicitação), nrow)
+    names(counts_orgao) <- c("Distrito", "Órgão", "Serviço", "Status.da.solicitação", "Qtde.Solicitações")
+    counts_orgao <- counts_orgao[order(counts_orgao$Qtde.Solicitações, decreasing = TRUE, na.last = TRUE), ]
+    counts_orgao <- head(counts_orgao, 20)
+    #
+    head(counts_orgao, 10)
+  }, width = '100%', bordered = TRUE, striped = TRUE, hover = TRUE, na = "NA")
+  #----------------------------------------------------------------------------
+  # Tabela de Serviços mais solicitados
+  # Table
+  counts_total <- ddply(subset(dados, dados$Status.da.solicitação != "CANCELADA"), 
+                        .(Distrito, Órgão, Serviço, Status.da.solicitação), nrow)
+  names(counts_total) <- c("Distrito", "Órgão", "Serviço", "Status.da.solicitação", "Qtde.Solicitações")
+  counts_total <- counts_total[order(counts_total$Qtde.Solicitações, decreasing = TRUE, na.last = TRUE), ]
+  counts_total <- head(counts_total, 20)
+  #
+  output$desc_total_f <- renderTable({
+    head(counts_total, 10)
+  }, width = 'auto', striped = TRUE, hover = TRUE, na = "NA")
+
+    
+  #----------------------------------------------------------------------------
+  # Graficos
+  #----------------------------------------------------------------------------
   # Grafico de Solicitacoes por Orgao
   output$grafico_orgao <- renderPlot({
     
@@ -178,54 +214,72 @@ function(input, output, session) {
     
     org <- subset(data, Órgão == orgao)
     s <- table(org$Status.da.solicitação)
-    
+
+    m = mean(table(org$Status.da.solicitação))
+    #print(m)
+
+    tb = 0
+    if (m == 0) {
+      tb = 0
+    } else if (m < 1) {
+      tb = 0.085
+    } else if (m <= 5) {
+      tb = 0.2
+    } else if (m <= 10) {
+      tb = 0.6
+    } else if (m <= 25) {
+      tb = 2.6
+    } else if (m <= 50) {
+      tb = 4
+    } else if (m <= 100) {
+      tb = 10
+    } else if (m <= 250) {
+      tb = 25
+    } else if (m <= 500) {
+      tb = 50
+    } else if (m <= 1500) {
+      tb = 120
+    } else if (m <= 2500) {
+      tb = 220
+    } else if (m <= 5000) {
+      tb = 500
+    } else if (m <= 10000) {
+      tb = 1000
+    } else {
+      tb = 2000
+    }
+
     borg <- barplot(s, 
                     col = c("gold", "red", "darkturquoise"), 
-                    ylab = "Quantidade", 
-                    ylim = c(0, max(table(org$Status.da.solicitação)) + 1000),
+                    ylab = "Quantidade",
+                    xlab = "Status",
+                    ylim = c(0, max(table(org$Status.da.solicitação)) * 1.4),
                     font.main=4,
                     main=paste("Solicitações por Órgão - ", input$sorgaos))
     text(borg, 
-         table(org$Status.da.solicitação) + 200, 
+         table(org$Status.da.solicitação) + tb,
          paste(summary(org$Status.da.solicitação)),
          font=2,
          cex=1) 
+    
   })
-  #----------------------------------------------------------------------------
-  # Grafico de Solicitacoes por Orgao
-  # Pie
-  output$pie_orgao <- renderPlot({
-    #boxplot(dados$Status.da.solicitação, table(dados$Status.da.solicitação))
-  })
-  
   #----------------------------------------------------------------------------
   # Grafico de Solicitacoes Totais
   # Barra
   output$grafico_total <- renderPlot({
     
-    # #dados <- dados #getData()
-    # bar = barplot(summary(dados$Status.da.solicitação),
-    #               col = c("gold", "red", "darkturquoise"), 
-    #               ylab = "Quantidade", 
-    #               main="Solicitações Totais dos Órgãos/Secretarias")
-    #dados <- dados #getData()
     btot = barplot(table(dados$Status.da.solicitação),
                    col = c("gold", "red", "darkturquoise"), 
-                   ylab = "Quantidade", 
-                   ylim = c(0, max(table(dados$Status.da.solicitação)) + 3000),
+                   ylab = "Quantidade",
+                   xlab = "Status",
+                   ylim = c(0, max(table(dados$Status.da.solicitação)) + 5000),
                    font.main=4,
                    main="Solicitações Totais dos Órgãos/Secretarias")
-    text(btot, 
-         table(dados$Status.da.solicitação) + 2000, 
+    text(btot,
+         table(dados$Status.da.solicitação) + 3000, 
          paste(summary(dados$Status.da.solicitação)),
          font=2,
          cex=1) 
-  })
-  #----------------------------------------------------------------------------
-  # Grafico de Solicitacoes Totais
-  # Pie
-  output$pie_total <- renderPlot({
-    #boxplot(dados$Status.da.solicitação, table(dados$Status.da.solicitação))
   })
   
 }
