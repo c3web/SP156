@@ -1,7 +1,9 @@
 #------------------------------------------------------------------------
 library(plyr)
+library(dplyr)
+library(leaflet)
 #------------------------------------------------------------------------
-arquivo <- "data/dados-do-sp156.csv"
+arquivo <- "data/dados-do-sp156-teste.csv"
 #
 dados <- read.csv(arquivo, sep = ",", encoding = "UTF-8")
 #
@@ -13,13 +15,16 @@ function(input, output, session) {
   hideTab(inputId = "sp156", target = "Dados")
   hideTab(inputId = "sp156", target = "Gráficos")
   
-  showTab(inputId = "sp156", target = "Dados", select = TRUE)
-  showTab(inputId = "sp156", target = "Gráficos")
   #----------------------------------------------------------------------------
   # Tabela
   output$table <- DT::renderDataTable(DT::datatable({
     data <- getData()
   }))
+
+  #----------------------------------------------------------------------------
+  showTab(inputId = "sp156", target = "Dados", select = TRUE)
+  showTab(inputId = "sp156", target = "Gráficos")
+  
   #----------------------------------------------------------------------------
   updateSelectInput(session, "sorgaos",
                     choices = c("Selecione",
@@ -199,7 +204,7 @@ function(input, output, session) {
 
     
   #----------------------------------------------------------------------------
-  # Graficos
+  # GRAFICOS
   #----------------------------------------------------------------------------
   # Grafico de Solicitacoes por Orgao
   output$grafico_orgao <- renderPlot({
@@ -275,6 +280,55 @@ function(input, output, session) {
          paste(summary(dados$Status.da.solicitação)),
          font=2,
          cex=1) 
+  })
+  
+  #-----------------------------------------------------------------------------------
+  # MAPAS
+  #-----------------------------------------------------------------------------------
+  # Mapa de Solicitacoes por Orgao
+  output$mapa_orgao <- renderLeaflet({
+    data <- getData()
+    orgao <- input$sorgaos
+    org <- subset(data, Órgão == orgao)
+    #
+    org <- org[!is.na(org$Longitude),]
+    zoom = 18
+    #
+    if (nrow(org) == 0) {
+      Latitude = c(as.numeric(-23.5521232))
+      Longitude = c(as.numeric(-46.6375192))
+      Serviço = "Dados não disponíveis para visualização"
+      df = data.frame(Latitude, Longitude, Serviço)
+      zoom = 10
+    } else {
+      df <- org[!is.na(org$Longitude),]
+      df <- select(df, Serviço, Longitude, Latitude)
+      df <- na.omit(df)
+      df <- head(df, n = 50)
+    }
+    #print(dim(df))
+    output$org_total_Box <- renderValueBox({
+      nrow(df)
+    })
+    #-----------------------------------------------------------------------------------
+    mapa <- leaflet(options = leafletOptions(minZoom = 0, maxZoom = zoom)) %>%
+      addTiles() %>%  # Adiciona uma camada padrão OpenStreeMaps
+      addMarkers(data = df, lng = ~Longitude, lat = ~Latitude, popup = df$Serviço)
+    mapa
+  })
+  #-----------------------------------------------------------------------------------
+  # Map de Solicitacoes Totais
+  output$mapa_total <- renderLeaflet({
+    df <- dados[!is.na(dados$Longitude),]
+    df <- select(df, Distrito, Longitude, Latitude, Órgão)
+    df <- na.omit(df)
+    df <- head(df, n = 100)
+    #print(dim(df))
+    #-----------------------------------------------------------------------------------
+    mapa <- leaflet(options = leafletOptions(minZoom = 0, maxZoom = 10)) %>% 
+      addTiles() %>%  # Adiciona uma camada padrão OpenStreeMaps
+      addMarkers(data = df, lng = ~Longitude, lat = ~Latitude, popup = paste("<b>", df$Órgão, "</b>", " - ", df$Distrito))
+    mapa
   })
   
 }
