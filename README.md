@@ -4,3 +4,4 @@ Aplicação criada para estudos da linguagem R.
 
 Visualização dos dados das solicitações de serviços para as secretarias e órgãos da cidade de São Paulo, recebidas pelos canais de atendimento SP156.
 
+Acesse: https://c3web.shinyapps.io/sp156
