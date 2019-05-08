@@ -14,18 +14,19 @@ sidebar <- dashboardSidebar(
     menuItem("Indicadores", tabName = "Indicadores", icon = icon("chart-bar")),
     menuItem("Mapas", tabName = "Mapas", icon = icon("globe"), 
              badgeLabel = "new", badgeColor = "green"),
+    hr(),
     menuItem(
-      box(width = NULL, status = "warning", background = "black",
+      box(width = NULL, status = "primary", background = "black",
           selectInput("sorgaos", "Órgão", c("Selecione"))
       )
     ),
     menuItem(
-      box(width = NULL, status = "warning", background = "black",
+      box(width = NULL, status = "success", background = "black",
           selectInput("sdistrito", "Distrito", c("Selecione"))
       )
     ),
     menuItem(
-      box(width = NULL, status = "warning", background = "black",
+      box(width = NULL, status = "danger", background = "black",
           selectInput("sstatus", "Status", c("Selecione"))
       )
     )

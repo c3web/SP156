@@ -1,13 +1,13 @@
 name: SP156
-title: SP156
+title: !SP156
 username:
 account: c3web
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 662406
-bundleId: 1838329
+bundleId: 1840863
 url: https://c3web.shinyapps.io/sp156/
-when: 1548507698.47204
+when: 1548667975.78919
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: README.md
+ignoredFiles: leaflet.pdf|Novo Documento de Texto.txt|README.md|data/dados-do-sp156---2o-sem-2018.xlsx|data/dados-do-sp156-all.csv|data/dados-do-sp156.csv|data/dados-do-sp156_1.csv|tips/git-tips.txt|tips/tab-mapa.R

@@ -1,6 +1,5 @@
 #------------------------------------------------------------------------
 library(plyr)
-library(dplyr)
 library(leaflet)
 #------------------------------------------------------------------------
 arquivo <- "data/dados-do-sp156-teste.csv"
@@ -12,19 +11,12 @@ dados <- read.csv(arquivo, sep = ",", encoding = "UTF-8")
 # Define a logica de servidor para mostrar a tabela com os dados
 function(input, output, session) {
   
-  hideTab(inputId = "sp156", target = "Dados")
-  hideTab(inputId = "sp156", target = "Gráficos")
-  
   #----------------------------------------------------------------------------
   # Tabela
   output$table <- DT::renderDataTable(DT::datatable({
     data <- getData()
   }))
 
-  #----------------------------------------------------------------------------
-  showTab(inputId = "sp156", target = "Dados", select = TRUE)
-  showTab(inputId = "sp156", target = "Gráficos")
-  
   #----------------------------------------------------------------------------
   updateSelectInput(session, "sorgaos",
                     choices = c("Selecione",
@@ -302,7 +294,9 @@ function(input, output, session) {
       zoom = 10
     } else {
       df <- org[!is.na(org$Longitude),]
-      df <- select(df, Serviço, Longitude, Latitude)
+      #df <- select(df, Serviço, Longitude, Latitude)
+      df <- dados[, c(6,7,8)]
+      
       df <- na.omit(df)
       df <- head(df, n = 50)
     }
@@ -320,7 +314,9 @@ function(input, output, session) {
   # Map de Solicitacoes Totais
   output$mapa_total <- renderLeaflet({
     df <- dados[!is.na(dados$Longitude),]
-    df <- select(df, Distrito, Longitude, Latitude, Órgão)
+    #df <- select(df, Distrito, Longitude, Latitude, Órgão)
+    df <- dados[, c(5,7,8,10)]
+    
     df <- na.omit(df)
     df <- head(df, n = 100)
     #print(dim(df))
